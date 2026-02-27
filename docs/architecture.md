@@ -1,5 +1,19 @@
 # Hex/Ports and Adapter
 
+## Diagrama general
+
+         [ API Controller ]
+                ↓
+          (Driver Adapter)
+                ↓
+          IAuthenticateUser
+                ↓
+     [ Application Use Case ]
+                ↓
+IUserRepository | ITokenGenerator | IOAuthProvider
+                ↓
+      (Driven Adapters / Infra)
+
 ## Arquitectura del proyecto
 
 AuthAstraVentura.sln
@@ -10,26 +24,30 @@ AuthAstraVentura.sln
 │   │
 │   ├── Ports
 │   │   ├── Drivers (Primary / Inbound)
-│   │   │   └── IForAuthenticating.cs  <-- Contrato de entrada
+│   │   │   ├── IAuthenticateUserUseCase.cs
+│   │   │   ├── IRegisterUserUseCase.cs
+│   │   │   └── IRefreshTokenUseCase.cs
 │   │   │
 │   │   └── Drivens (Secondary / Outbound)
-│   │       ├── IForRepoQuerying.cs    <-- Para ir a la BD
-│   │       ├── IForTokenOperations.cs <-- Para generar JWT/Refresh
-│   │       └── IForOAuthProvider.cs   <-- Para hablar con Google o otros oAuth providers (Driven)
+│   │       ├── IUserRepository.cs    <-- Para ir a la BD
+│   │       ├── ITokenGenerator.cs <-- Para generar JWT/Refresh
+│   │       └── IOAuthIdentityProvider.cs   <-- Para hablar con Google o otros oAuth providers (Driven)
 │   │
-│   ├── Dtos
-│   │   ├── CredentialsDto.cs
-│   │   ├── RegisterNewDto.cs
-│   │   └── AuthenticatedUserDto.cs
-│   │
-│   └── Application (Implementación de la lógica del hexágono)
-│       └── AuthAstraApp.cs            <-- Implementa IForAuthenticating
+│   ├── UseCases (Implementación de la lógica del hexágono se puede llamar UseCases o ApplicationServices en DDD)
+│   │   ├── AuthenticateUserUseCase.cs
+│   │   ├── RegisterUserUseCase.cs
+│   │   └── RefreshTokenUseCase.cs
+|   |
+│   └── Dtos
+│       ├── CredentialsDto.cs
+│       ├── RegisterNewDto.cs
+│       └── AuthenticatedUserDto.cs
 │
-├── AuthAstraVentura.Adapters (El exterior)
-│   ├── Drivers
-│   │   └── Api (Controllers que llaman a AuthAstraApp)
-│   │
-│   └── Drivens
-│       ├── Database (Implementa IForRepoQuerying)
-│       ├── Security (Implementa IForTokenOperations)
-│       └── GoogleAdapter (Implementa IForOAuthProvider)
+└── AuthAstraVentura.Adapters (El exterior)
+    ├── Drivers
+    │   └── AuthController.cs
+    │
+    └── Drivens
+        ├── Database (Implementa IForRepoQuerying)
+        ├── Security (Implementa IForTokenOperations)
+        └── GoogleAdapter (Implementa IForOAuthProvider)
