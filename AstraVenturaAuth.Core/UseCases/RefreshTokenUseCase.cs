@@ -21,6 +21,12 @@ public sealed class RefreshTokenUseCase : IRefreshTokenUseCase
         _tokens = tokens;
     }
 
+    /// <summary>
+    /// Refreshes the user's access token if refresh token is valid and user guid is found
+    /// </summary>
+    /// <param name="refreshToken">Refresh token</param>
+    /// <param name="ct">CancellationToken</param>
+    /// <returns>Result<AuthenticatedUserDto> with the user data and tokens if success, otherwise an error and details</returns>
     public async Task<Result<AuthenticatedUserDto>> ExecuteAsync(string refreshToken, CancellationToken ct = default)
     {
         var isValid = await _tokens.ValidateRefreshTokenAsync(refreshToken, ct);
@@ -35,17 +41,17 @@ public sealed class RefreshTokenUseCase : IRefreshTokenUseCase
         if (user is null)
             return Result<AuthenticatedUserDto>.Failure(AuthErrors.UserNotFound);
 
-        await _tokens.InvalidateRefreshTokenAsync(refreshToken, ct);   // rotación del token
-        var tokenPair = _tokens.Generate(user);
+        await _tokens.InvalidateRefreshTokenAsync(refreshToken, ct); // Token actual invalidado
+        var tokenPair = _tokens.Generate(user); // Generación de nuevo par de tokens
 
         return Result<AuthenticatedUserDto>.Success(new AuthenticatedUserDto
         {
-            Id           = user.Id.ToString(),
-            Email        = user.EmailAddress.Value,
-            Name         = user.Name.FullName,
-            AccessToken  = tokenPair.AccessToken,
+            Id = user.Id.ToString(),
+            Email = user.EmailAddress.Value,
+            Name = user.Name.FullName,
+            AccessToken = tokenPair.AccessToken,
             RefreshToken = tokenPair.RefreshToken,
-            ExpiresAt    = tokenPair.ExpiresAt
+            ExpiresAt = tokenPair.ExpiresAt
         });
     }
 }
