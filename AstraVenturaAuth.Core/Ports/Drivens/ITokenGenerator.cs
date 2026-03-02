@@ -10,6 +10,6 @@ public interface ITokenGenerator
     Task<bool> ValidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default);
     Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default);
 
-    // El UserId lo necesitamos para emitir un nuevo par sin re-autenticar
+    // El UserId lo necesitamos para emitir un nuevo par de tokens sin volver a autenticar
     Task<string?> GetUserIdFromRefreshTokenAsync(string refreshToken, CancellationToken ct = default);
 }
