@@ -78,6 +78,7 @@ public sealed class JwtTokenGenerator : ITokenGenerator
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        // Claims estándard de RFC 7519, sub subject (quién eres?) y jti (identificador único del token JWT ID, bloqueable)
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
@@ -106,6 +107,6 @@ public sealed class JwtTokenGenerator : ITokenGenerator
         RandomNumberGenerator.Fill(bytes);
         return Convert.ToBase64String(bytes);
     }
-    
+
     #endregion
 }

@@ -10,7 +10,7 @@
                 ↓
      [ Application Use Case ]
                 ↓
-IUserRepository | ITokenGenerator | IOAuthProvider
+IUserRepository │ ITokenGenerator │ IOAuthProvider
                 ↓
       (Driven Adapters / Infra)
 
@@ -50,18 +50,30 @@ AstraVenturaAuth.sln
 │   │   ├── AuthenticateUserUseCase.cs
 │   │   ├── RegisterUserUseCase.cs
 │   │   └── RefreshTokenUseCase.cs
-|   |
+│   │
 │   └── Dtos
 │       ├── CredentialsDto.cs
 │       ├── RegisterNewUserDto.cs
 │       ├── RefreshTokenDto.cs
 │       └── AuthenticatedUserDto.cs
 │
-└── AstraVenturaAuth.Adapters (El exterior)
-    ├── Drivers
-    │   └── AuthController.cs
-    │
-    └── Drivens
-        ├── Database (Implementa IForRepoQuerying)
-        ├── Security (Implementa IForTokenOperations)
-        └── GoogleAdapter (Implementa IForOAuthProvider)
+├── AstraVenturaAuth.Adapters (El exterior)
+│   ├── Drivers
+│   │   └── AuthController.cs (Se mueve a AstraVenturaAuth.Api)
+│   │
+│   ├── Drivens
+│   │   └── Security
+│   │       ├── BCryptPasswordHasher.cs
+│   │       ├── JwtTokenGenerator.cs
+│   │       ├── JwtOptions.cs
+│   │       │
+│   │       └── Database
+│   │           ├── AuthDbContext.cs
+│   │           ├── AuthDbContextFactory.cs
+│   │           ├── UserRepository.cs
+│   │           └── Models
+│   │               └── UserEntity.cs (Tabla en la BD de usuario)
+│   │    
+│   └── DependencyInjection.cs
+│   
+└── AstraVenturaAuth.Api (Presentación)
