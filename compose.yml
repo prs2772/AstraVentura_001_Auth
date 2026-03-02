@@ -1,0 +1,28 @@
+services:
+  auth-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5451:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASP_ENV}
+      - ConnectionStrings__AuthDb=Server=sql-db;Database=${DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
+      - JwtSettings__Secret=${JWT_SECRET}
+    depends_on:
+      - sql-db
+
+  sql-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: avu_auth_sql_server
+    user: root
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "1451:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql/data
+
+volumes:
+  mssql-data:

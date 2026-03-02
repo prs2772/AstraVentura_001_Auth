@@ -606,3 +606,4 @@ obj/
 
 appsettings.Development.json
 .env
+AstraVenturaAuth.Adapters/Migrations
