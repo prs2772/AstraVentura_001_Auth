@@ -16,11 +16,23 @@ IUserRepository | ITokenGenerator | IOAuthProvider
 
 ## Arquitectura del proyecto
 
-AuthAstraVentura.sln
+AstraVenturaAuth.sln
 │
-├── AuthAstraVentura.Core (El Hexágono - Sin dependencias externas)
+├── AstraVenturaAuth.Core (El Hexágono - Sin dependencias externas)
+│   ├── Common
+│   │   ├── Result.cs
+│   │   └── Errors
+│   │       ├── ErrorResult.cs
+│   │       └── AuthErrors.cs
+│   │
 │   ├── Domain
-│   │   └── User.cs
+│   │   ├── User.cs
+│   │   └── ValueObjects
+│   │       ├── Email.cs
+│   │       ├── Password.cs
+│   │       ├── PasswordHash.cs
+│   │       ├── PersonName.cs
+│   │       └── UserId.cs
 │   │
 │   ├── Ports
 │   │   ├── Drivers (Primary / Inbound)
@@ -29,7 +41,8 @@ AuthAstraVentura.sln
 │   │   │   └── IRefreshTokenUseCase.cs
 │   │   │
 │   │   └── Drivens (Secondary / Outbound)
-│   │       ├── IUserRepository.cs    <-- Para ir a la BD
+│   │       ├── IUserRepository.cs
+│   │       ├── IPasswordHasher.cs
 │   │       ├── ITokenGenerator.cs <-- Para generar JWT/Refresh
 │   │       └── IOAuthIdentityProvider.cs   <-- Para hablar con Google o otros oAuth providers (Driven)
 │   │
@@ -40,10 +53,11 @@ AuthAstraVentura.sln
 |   |
 │   └── Dtos
 │       ├── CredentialsDto.cs
-│       ├── RegisterNewDto.cs
+│       ├── RegisterNewUserDto.cs
+│       ├── RefreshTokenDto.cs
 │       └── AuthenticatedUserDto.cs
 │
-└── AuthAstraVentura.Adapters (El exterior)
+└── AstraVenturaAuth.Adapters (El exterior)
     ├── Drivers
     │   └── AuthController.cs
     │
