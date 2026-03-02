@@ -28,9 +28,13 @@ Para revisar cómo se fué creando el proyecto, revisar el archivo project-creat
 
 Ejecutar docker-compose up -d para primera creación de los servicios, se cargará todo lo necesario para el funcionamiento de la aplicación. Para detener los servicios ejecutar docker-compose down.
 
-## 🧪 Testing
+Para deployar en azure revisar el archivo azure.md
+→ [Azure](docs/azure.md)
 
-TBC
+## 🧪 Try me
+
+Revisar el archivo try.md para ver cómo se puede usar la API.
+→ [Try me](docs/try.md)
 
 ## 🛠️ Utilerías
 
@@ -43,3 +47,6 @@ Revisar utils.md para ver comandos útiles para el manejo de la aplicación.
 - [JWT Refresh](docs/jwt-refresh.md)
 - [Project Creation](docs/project-creation.md)
 - [Explicación general](docs/explanation.md)
+- [Try me](docs/try.md)
+- [Utilerías](docs/utils.md)
+- [Azure](docs/azure.md)
