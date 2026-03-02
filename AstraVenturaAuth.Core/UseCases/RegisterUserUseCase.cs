@@ -57,7 +57,7 @@ public sealed class RegisterUserUseCase : IRegisterUserUseCase
         if (saveResult.IsFailure)
             return Result<AuthenticatedUserDto>.Failure(saveResult.Error);
 
-        var tokenPair = _tokens.Generate(user);
+        var tokenPair = await _tokens.GenerateAsync(user);
 
         return Result<AuthenticatedUserDto>.Success(new AuthenticatedUserDto
         {

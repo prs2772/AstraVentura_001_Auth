@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using AstraVenturaAuth.Core.Domain;
 using AstraVenturaAuth.Core.Ports.Drivens;
+using Microsoft.Extensions.Caching.Distributed; // 20260301 prs - Se agrega el driver de Redis para cacheo de tokens
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,57 +16,62 @@ namespace AstraVenturaAuth.Adapters.Drivens.Security;
 public sealed class JwtTokenGenerator : ITokenGenerator
 {
     private readonly JwtOptions _options;
-    private static readonly Dictionary<string, (string UserId, DateTime Expiry)> _refreshTokenStore = new();
+    private readonly IDistributedCache _cache; // 20260301 prs - Se agrega el driver de Redis para cacheo de tokens
 
     // Se inyectan las opciones de appsettings.json
-    public JwtTokenGenerator(IOptions<JwtOptions> options)
+    public JwtTokenGenerator(IOptions<JwtOptions> options, IDistributedCache cache)
     {
         _options = options.Value;
+        _cache = cache;
     }
 
     /// <summary>
     /// Genera un par de tokens (Access Token y Refresh Token)
     /// </summary>
-    public TokenPair Generate(User user)
+    public async Task<TokenPair?> GenerateAsync(User user, CancellationToken ct = default)
     {
         var expiresAt = DateTime.UtcNow.AddMinutes(_options.AccessTokenExpirationMinutes);
         var accessToken = BuildJwt(user, expiresAt);
         var refreshToken = GenerateRefreshToken();
 
-        var refreshExpiry = DateTime.UtcNow.AddDays(_options.RefreshTokenExpirationDays);
-        _refreshTokenStore[refreshToken] = (user.Id.ToString(), refreshExpiry);
+        // 20260301 prs - Se agrega el almacenamiento en redis y borrado automático en los dias configurados, pasa a ser async
+        // La clave RefreshToken con valor de UserId
+        var cacheOptions = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(_options.RefreshTokenExpirationDays)
+        };
+
+        await _cache.SetStringAsync(refreshToken, user.Id.ToString(), cacheOptions, ct);
 
         return new TokenPair(accessToken, refreshToken, expiresAt);
     }
 
     /// <summary>
-    /// Valida un refresh token
+    /// Valida un refresh token con Redis
     /// </summary>
-    public Task<bool> ValidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
+    public async Task<bool> ValidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
     {
-        var isValid = _refreshTokenStore.TryGetValue(refreshToken, out var entry)
-                      && entry.Expiry > DateTime.UtcNow;
-
-        return Task.FromResult(isValid);
+        var userId = await _cache.GetStringAsync(refreshToken, ct);
+        
+        // Si Redis devuelve null, significa que no existe o YA EXPIRÓ. Redis se encarga de validar la fecha
+        return userId is not null;
     }
 
     /// <summary>
     /// Invalida un refresh token que ya se haya usado para solicitar otro
     /// </summary>
-    public Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
+    public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
     {
-        _refreshTokenStore.Remove(refreshToken);
-        return Task.CompletedTask;
+        await _cache.RemoveAsync(refreshToken, ct);
     }
 
     /// <summary>
     /// Obtiene el ID de usuario del refresh token
     /// </summary>
-    public Task<string?> GetUserIdFromRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
+    public async Task<string?> GetUserIdFromRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
     {
-        _refreshTokenStore.TryGetValue(refreshToken, out var entry);
-        var userId = entry.Expiry > DateTime.UtcNow ? entry.UserId : null;
-        return Task.FromResult(userId);
+        // Recuperamos el UserId guardado
+        return await _cache.GetStringAsync(refreshToken, ct);
     }
 
     #region Helpers privados

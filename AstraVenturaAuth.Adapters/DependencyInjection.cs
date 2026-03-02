@@ -31,6 +31,14 @@ public static class DependencyInjection
         // Configuración JWTm inyectando en mi clase JwtOption las opciones de configuración de appsettings.json
         services.Configure<JwtOptions>(config.GetSection(JwtOptions.SectionName));
 
+        // Agregando Redis
+        var redisConnection = config.GetConnectionString("Redis");
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConnection;
+            options.InstanceName = "AstraVentura_"; // Prefijo para que no se mezclen claves de Redis entre Apps
+        });
+
         return services;
     }
 }

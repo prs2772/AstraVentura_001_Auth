@@ -66,3 +66,9 @@ dotnet ef migrations add InitialCreate \
 dotnet ef database update \
     --project AstraVenturaAuth.Adapters \
     --startup-project AstraVenturaAuth.Api
+
+## 1.5 Agregando paquetes a la capa externa de Adapters y Api
+
+### Redis Driver
+
+dotnet add AstraVenturaAuth.Adapters package Microsoft.Extensions.Caching.StackExchangeRedis

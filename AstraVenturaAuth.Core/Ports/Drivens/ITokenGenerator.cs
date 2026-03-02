@@ -6,7 +6,7 @@ public record TokenPair(string AccessToken, string RefreshToken, DateTime Expire
 
 public interface ITokenGenerator
 {
-    TokenPair Generate(User user);
+    Task<TokenPair?> GenerateAsync(User user, CancellationToken ct = default);
     Task<bool> ValidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default);
     Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default);
 

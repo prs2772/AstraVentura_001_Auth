@@ -1,4 +1,12 @@
 services:
+  redis-cache:
+    image: redis:alpine
+    container_name: avu_redis_jwt
+    ports:
+      - "6693:6379"
+    networks:
+      - default
+
   auth-api:
     build:
       context: .
@@ -9,8 +17,10 @@ services:
       - ASPNETCORE_ENVIRONMENT=${ASP_ENV}
       - ConnectionStrings__AuthDb=Server=sql-db;Database=${DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
       - JwtSettings__Secret=${JWT_SECRET}
+      - ConnectionStrings__Redis=redis-cache:6379
     depends_on:
       - sql-db
+      - redis-cache
 
   sql-db:
     image: mcr.microsoft.com/mssql/server:2022-latest

@@ -29,6 +29,7 @@ public async Task Invoke(HttpContext context)
             - ValidateAudience: Indica si se debe validar la audiencia del token.
             - ValidateLifetime: Indica si se debe validar que el token no haya expirado.
             - ValidateIssuerSigningKey: Indica si se debe validar que el token haya sido firmado por el emisor.
+    - Redis: 20260301 prs - Se agrega el driver de Redis para cacheo de tokens
 - En la pipeline (cadena de middelwares) por la que pasa la request Http, se define el **orden** por el cual se ejecutan los middelwares. Por ejemplo, primero se debe agregar UseAuthorization() y luego UseAuthentication() para que la autorización funcione correctamente.
     - AddAuthorization: Permite que valide si el usuario está autenticado y autorizado para acceder a un recurso.
     - UseHttpsRedirection: Redirige todas las peticiones HTTP a HTTPS.
@@ -46,4 +47,4 @@ Los adaptadores son los encargados de implementar los puertos de entrada y salid
 
 ## Core
 
-Core es el nucleo de la aplicación, contiene la lógica de negocio y define los puertos que se implementarán en los adaptadores. Por lo tanto, no tiene dependencias externas.
+Core es el nucleo de la aplicación, contiene la lógica de negocio y define los puertos que se implementarán en los adaptadores. Por lo tanto, no tiene dependencias externas. En esta arquitecrtura, es el núcleo del hexágono.

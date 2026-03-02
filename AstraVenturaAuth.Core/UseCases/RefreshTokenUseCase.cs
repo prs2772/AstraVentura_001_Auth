@@ -42,7 +42,7 @@ public sealed class RefreshTokenUseCase : IRefreshTokenUseCase
             return Result<AuthenticatedUserDto>.Failure(AuthErrors.UserNotFound);
 
         await _tokens.InvalidateRefreshTokenAsync(refreshToken, ct); // Token actual invalidado
-        var tokenPair = _tokens.Generate(user); // Generación de nuevo par de tokens
+        var tokenPair = await _tokens.GenerateAsync(user); // Generación de nuevo par de tokens
 
         return Result<AuthenticatedUserDto>.Success(new AuthenticatedUserDto
         {

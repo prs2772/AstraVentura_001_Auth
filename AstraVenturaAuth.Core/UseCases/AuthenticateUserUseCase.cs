@@ -41,7 +41,7 @@ public sealed class AuthenticateUserUseCase : IAuthenticateUserUseCase
             return Result<AuthenticatedUserDto>.Failure(AuthErrors.InvalidCredentials);
 
         // Generando el par de tokens
-        var tokenPair = _tokens.Generate(user);
+        var tokenPair = await _tokens.GenerateAsync(user);
 
         // Retornando el usuario autenticado
         return Result<AuthenticatedUserDto>.Success(new AuthenticatedUserDto
