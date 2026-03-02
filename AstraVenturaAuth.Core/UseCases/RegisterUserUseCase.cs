@@ -10,9 +10,15 @@ namespace AstraVenturaAuth.Core.UseCases;
 
 public sealed class RegisterUserUseCase : IRegisterUserUseCase
 {
+    #region Puertos
+    // Peristencia de los usuarios
     private readonly IUserRepository _users;
+    // Generación de la identidad del usuario
     private readonly ITokenGenerator _tokens;
+    // Cifrado de contraseñas
     private readonly IPasswordHasher _hasher;
+
+    #endregion
 
     public RegisterUserUseCase(IUserRepository users, ITokenGenerator tokens, IPasswordHasher hasher)
     {
@@ -21,11 +27,19 @@ public sealed class RegisterUserUseCase : IRegisterUserUseCase
         _hasher = hasher;
     }
 
+    /// <summary>
+    /// Gets a new User to register, validates, inserts and generates a new pair of tokens to return if success
+    /// </summary>
+    /// <param name="dto">RegisterNewUserDto with all the required data</param>
+    /// <param name="ct">CancellationToken</param>
+    /// <returns>Result<AuthenticatedUserDto> with the user data and tokens if success, otherwise an error and details</returns>
     public async Task<Result<AuthenticatedUserDto>> ExecuteAsync(RegisterNewUserDto dto, CancellationToken ct = default)
     {
+        // Validando que el Email que recibimos no venga vacío ni el password
         if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
             return Result<AuthenticatedUserDto>.Failure(AuthErrors.InvalidCredentials);
 
+        var password = new Password(dto.Password);
         var email = new Email(dto.Email);
 
         if (await _users.ExistsAsync(email, ct))
@@ -36,7 +50,7 @@ public sealed class RegisterUserUseCase : IRegisterUserUseCase
             lastName: dto.ApellidoPrincipal,
             secondLastName: dto.ApellidoSecundario);
 
-        var hash = _hasher.Hash(dto.Password);
+        var hash = _hasher.Hash(password.Value);
         var user = new User(UserId.New(), email, name, new PasswordHash(hash));
 
         var saveResult = await _users.SaveAsync(user, ct);
