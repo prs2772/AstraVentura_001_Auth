@@ -1,0 +1,42 @@
+@AstraVenturaAuth.Api_HostAddress = http://localhost:5260
+
+### =========================
+### REGISTER
+### =========================
+POST {{AstraVenturaAuth.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "[EMAIL_ADDRESS]",
+  "password": "[PASSWORD]",
+  "nombre": "Nombre",
+  "apellidoPrincipal": "ApellidoPrincipal",
+  "apellidoSecundario": "ApellidoSecundario"
+}
+
+###
+
+### =========================
+### LOGIN
+### =========================
+POST {{AstraVenturaAuth.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "[EMAIL_ADDRESS]",
+  "password": "[PASSWORD]"
+}
+
+###
+
+### =========================
+### REFRESH TOKEN
+### =========================
+POST {{AstraVenturaAuth.Api_HostAddress}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "AQUI_VA_EL_REFRESH_TOKEN"
+}
+
+###
