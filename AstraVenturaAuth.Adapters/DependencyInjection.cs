@@ -12,11 +12,15 @@ namespace AstraVenturaAuth.Adapters;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddAdapters(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddAdapters(
+        this IServiceCollection services,
+        IConfiguration config
+    )
     {
         // DB, desde el puente de Factory o ya en docker desde Program.cs
         services.AddDbContext<AuthDbContext>(opts =>
-            opts.UseSqlServer(config.GetConnectionString("AuthDb")));
+            opts.UseSqlServer(config.GetConnectionString("AuthDb"))
+        );
 
         // Inyecto mis implementaciones de los puertos (Drivens que se firman en Core, aqui los implemento)
         services.AddScoped<IUserRepository, UserRepository>(); // Uno por request
@@ -29,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenUseCase, RefreshTokenUseCase>();
         services.AddScoped<IRequestPasswordRecoveryUseCase, RequestPasswordRecoveryUseCase>();
         services.AddScoped<IResetPasswordUseCase, ResetPasswordUseCase>();
+        services.AddScoped<IChangePasswordUseCase, ChangePasswordUseCase>();
 
         // Configuración JWTm inyectando en mi clase JwtOption las opciones de configuración de appsettings.json
         services.Configure<JwtOptions>(config.GetSection(JwtOptions.SectionName));

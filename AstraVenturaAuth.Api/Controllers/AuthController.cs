@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AstraVenturaAuth.Core.Dtos;
 using AstraVenturaAuth.Core.Ports.Drivers;
 using AstraVenturaAuth.Core.UseCases;
@@ -18,6 +19,7 @@ public sealed class AuthController : ControllerBase
     private readonly IRefreshTokenUseCase _refresh;
     private readonly IRequestPasswordRecoveryUseCase _requestPasswordRecovery;
     private readonly IResetPasswordUseCase _resetPassword;
+    private readonly IChangePasswordUseCase _changePassword;
 
     #endregion
 
@@ -26,7 +28,8 @@ public sealed class AuthController : ControllerBase
         IRegisterUserUseCase register,
         IRefreshTokenUseCase refresh,
         IRequestPasswordRecoveryUseCase requestPasswordRecovery,
-        IResetPasswordUseCase resetPassword
+        IResetPasswordUseCase resetPassword,
+        IChangePasswordUseCase changePassword
     )
     {
         _authenticate = authenticate;
@@ -34,6 +37,7 @@ public sealed class AuthController : ControllerBase
         _refresh = refresh;
         _requestPasswordRecovery = requestPasswordRecovery;
         _resetPassword = resetPassword;
+        _changePassword = changePassword;
     }
 
     /// <summary>
@@ -112,6 +116,36 @@ public sealed class AuthController : ControllerBase
 
         return result.IsSuccess
             ? Ok(new { Message = "Password has been successfully reset." })
+            : BadRequest(new { result.Error.Code, result.Error.Message });
+    }
+
+    /// <summary>
+    /// Cambia la contraseña del usuario autenticado
+    /// </summary>
+    [HttpPost("change-password")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordDto dto,
+        CancellationToken ct
+    )
+    {
+        var userIdStr = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userIdStr))
+        {
+            return Unauthorized(
+                new { Code = "Unauthorized access", Message = "Missing user identity claim." }
+            );
+        }
+
+        var result = await _changePassword.ExecuteAsync(userIdStr, dto, ct);
+
+        return result.IsSuccess
+            ? Ok(
+                new
+                {
+                    Message = "Your password has been successfully changed and all other sessions logged out.",
+                }
+            )
             : BadRequest(new { result.Error.Code, result.Error.Message });
     }
 }

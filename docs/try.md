@@ -84,3 +84,41 @@
     "expiresAt": "fecha-expiracion"
 }
 ```
+
+---
+
+## 4. Cambio de Contraseña (Change Password)
+
+**Endpoint:** `POST /api/auth/change-password`
+
+**Propósito:** Cambiar la contraseña del usuario.
+
+**Headers:**
+```
+{
+  "Authorization": "Bearer mi-jwt-token"
+}
+```
+
+**Body:**
+```json
+{
+  "currentPassword": "PasswordSeguro123!",
+  "newPassword": "PasswordSeguro123!"
+}
+```
+
+**Respuesta Exitosa (200):**
+```json
+{
+    "message": "Your password has been successfully changed and all other sessions logged out."
+}
+```
+
+**Respuesta Error (401):**
+```json
+{
+    "code": "Unauthorized access",
+    "message": "Missing user identity claim."
+}
+```
