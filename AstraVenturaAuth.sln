@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstraVenturaAuth.Adapters",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstraVenturaAuth.Api", "AstraVenturaAuth.Api\AstraVenturaAuth.Api.csproj", "{599F8323-B5BC-40B6-8240-255CAE646674}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstraVenturaAuth.Core.Tests", "AstraVenturaAuth.Core.Tests\AstraVenturaAuth.Core.Tests.csproj", "{034BE068-BBB5-45D8-A2E3-5ED775EB3BFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{599F8323-B5BC-40B6-8240-255CAE646674}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{599F8323-B5BC-40B6-8240-255CAE646674}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{599F8323-B5BC-40B6-8240-255CAE646674}.Release|Any CPU.Build.0 = Release|Any CPU
+		{034BE068-BBB5-45D8-A2E3-5ED775EB3BFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{034BE068-BBB5-45D8-A2E3-5ED775EB3BFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{034BE068-BBB5-45D8-A2E3-5ED775EB3BFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{034BE068-BBB5-45D8-A2E3-5ED775EB3BFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

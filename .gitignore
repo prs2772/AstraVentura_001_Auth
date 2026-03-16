@@ -604,6 +604,8 @@ obj/
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,dotnetcore,visualstudiocode,visualstudio
 
+engram_**
 appsettings.Development.json
 .env
 AstraVenturaAuth.Adapters/Migrations
+.vscode
