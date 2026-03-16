@@ -122,3 +122,51 @@
     "message": "Missing user identity claim."
 }
 ```
+
+## 5. Recuperación de Contraseña (Password Recovery)
+
+**Endpoint:** `POST /api/auth/forgot-password`
+
+**Propósito:** Iniciar el proceso de recuperación de contraseña.
+
+**Body:**
+```
+{
+  "email": "miemail@correo.com"
+}
+```
+
+**Body:**
+```json
+{
+  "email": "miemail@correo.com"
+}
+```
+
+**Respuesta Exitosa (200):**
+```json
+{
+    "message": "If the email exists, a reset link will be sent."
+}
+```
+
+## 6. Restablecimiento de Contraseña (Password Reset)
+
+**Endpoint:** `POST /api/auth/reset-password`
+
+**Propósito:** Restablecer la contraseña del usuario.
+
+**Body:**
+```json
+{
+  "token": "mi-token-recibido-por-correo",
+  "newPassword": "newpassword123!-cumple-con-politicas"
+}
+```
+
+**Respuesta Exitosa (200):**
+```json
+{
+    "message": "Password has been successfully reset."
+}
+```
