@@ -7,7 +7,12 @@ public sealed class User
     public UserId Id { get; }
     public Email EmailAddress { get; }
     public PersonName Name { get; }
-    public PasswordHash PasswordHash { get; }
+    public PasswordHash PasswordHash { get; private set; }
+
+    public void UpdatePassword(PasswordHash newPassword)
+    {
+        PasswordHash = newPassword ?? throw new ArgumentNullException(nameof(newPassword));
+    }
 
     public User(UserId id, Email emailAddress, PersonName name, PasswordHash passwordHash)
     {
