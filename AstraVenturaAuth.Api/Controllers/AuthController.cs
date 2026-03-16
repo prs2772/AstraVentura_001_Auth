@@ -47,7 +47,7 @@ public sealed class AuthController : ControllerBase
         var result = await _register.ExecuteAsync(dto, ct);
 
         return result.IsSuccess
-            ? CreatedAtAction(nameof(Login), result.Value)
+            ? StatusCode(201, result.Value)
             : Conflict(new { result.Error.Code, result.Error.Message });
     }
 
