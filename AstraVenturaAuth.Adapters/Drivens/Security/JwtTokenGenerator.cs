@@ -13,17 +13,11 @@ namespace AstraVenturaAuth.Adapters.Drivens.Security;
 /// <summary>
 /// Generador de tokens JWT, implementa el puerto ITokenGenerator
 /// </summary>
-public sealed class JwtTokenGenerator : ITokenGenerator
+public sealed class JwtTokenGenerator(IOptions<JwtOptions> options, IDistributedCache cache)
+    : ITokenGenerator
 {
-    private readonly JwtOptions _options;
-    private readonly IDistributedCache _cache; // 20260301 prs - Se agrega el driver de Redis para cacheo de tokens
-
-    // Se inyectan las opciones de appsettings.json
-    public JwtTokenGenerator(IOptions<JwtOptions> options, IDistributedCache cache)
-    {
-        _options = options.Value;
-        _cache = cache;
-    }
+    private readonly JwtOptions _options = options.Value;
+    private readonly IDistributedCache _cache = cache; // 20260301 prs - Se agrega el driver de Redis para cacheo de tokens
 
     /// <summary>
     /// Genera un par de tokens (Access Token y Refresh Token)
@@ -38,10 +32,20 @@ public sealed class JwtTokenGenerator : ITokenGenerator
         // La clave RefreshToken con valor de UserId
         var cacheOptions = new DistributedCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(_options.RefreshTokenExpirationDays)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(
+                _options.RefreshTokenExpirationDays
+            ),
         };
 
         await _cache.SetStringAsync(refreshToken, user.Id.ToString(), cacheOptions, ct);
+
+        // Identificar todos los tokens para un usuario para invalidarlos luego
+        var userTokensKey = $"user-tokens:{user.Id}";
+        var existingTokens = await _cache.GetStringAsync(userTokensKey, ct);
+        var tokensList =
+            existingTokens != null ? existingTokens.Split(',').ToList() : new List<string>();
+        tokensList.Add(refreshToken);
+        await _cache.SetStringAsync(userTokensKey, string.Join(",", tokensList), cacheOptions, ct);
 
         return new TokenPair(accessToken, refreshToken, expiresAt);
     }
@@ -49,10 +53,13 @@ public sealed class JwtTokenGenerator : ITokenGenerator
     /// <summary>
     /// Valida un refresh token con Redis
     /// </summary>
-    public async Task<bool> ValidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
+    public async Task<bool> ValidateRefreshTokenAsync(
+        string refreshToken,
+        CancellationToken ct = default
+    )
     {
         var userId = await _cache.GetStringAsync(refreshToken, ct);
-        
+
         // Si Redis devuelve null, significa que no existe o YA EXPIRÓ. Redis se encarga de validar la fecha
         return userId is not null;
     }
@@ -60,7 +67,10 @@ public sealed class JwtTokenGenerator : ITokenGenerator
     /// <summary>
     /// Invalida un refresh token que ya se haya usado para solicitar otro
     /// </summary>
-    public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
+    public async Task InvalidateRefreshTokenAsync(
+        string refreshToken,
+        CancellationToken ct = default
+    )
     {
         await _cache.RemoveAsync(refreshToken, ct);
     }
@@ -68,14 +78,39 @@ public sealed class JwtTokenGenerator : ITokenGenerator
     /// <summary>
     /// Obtiene el ID de usuario del refresh token
     /// </summary>
-    public async Task<string?> GetUserIdFromRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
+    public async Task<string?> GetUserIdFromRefreshTokenAsync(
+        string refreshToken,
+        CancellationToken ct = default
+    )
     {
         // Recuperamos el UserId guardado
         return await _cache.GetStringAsync(refreshToken, ct);
     }
 
+    /// <summary>
+    /// Invalida todos los refresh tokens de un usuario
+    /// </summary>
+    public async Task InvalidateAllRefreshTokensForUserAsync(
+        string userId,
+        CancellationToken ct = default
+    )
+    {
+        var userTokensKey = $"user-tokens:{userId}";
+        var existingTokensStr = await _cache.GetStringAsync(userTokensKey, ct);
+
+        if (!string.IsNullOrEmpty(existingTokensStr))
+        {
+            var tokens = existingTokensStr.Split(',');
+            foreach (var token in tokens)
+            {
+                await _cache.RemoveAsync(token, ct);
+            }
+            await _cache.RemoveAsync(userTokensKey, ct);
+        }
+    }
+
     #region Helpers privados
-    
+
     /// <summary>
     /// Construye el Access Token, tomando en cuenta la key secreta, fecha de expiración y claims de usuario
     /// </summary>
@@ -99,7 +134,8 @@ public sealed class JwtTokenGenerator : ITokenGenerator
             claims: claims,
             notBefore: DateTime.UtcNow,
             expires: expiresAt,
-            signingCredentials: creds);
+            signingCredentials: creds
+        );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
