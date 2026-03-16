@@ -27,6 +27,8 @@ public static class DependencyInjection
         services.AddScoped<IAuthenticateUserUseCase, AuthenticateUserUseCase>();
         services.AddScoped<IRegisterUserUseCase, RegisterUserUseCase>();
         services.AddScoped<IRefreshTokenUseCase, RefreshTokenUseCase>();
+        services.AddScoped<IRequestPasswordRecoveryUseCase, RequestPasswordRecoveryUseCase>();
+        services.AddScoped<IResetPasswordUseCase, ResetPasswordUseCase>();
 
         // Configuración JWTm inyectando en mi clase JwtOption las opciones de configuración de appsettings.json
         services.Configure<JwtOptions>(config.GetSection(JwtOptions.SectionName));
@@ -38,6 +40,12 @@ public static class DependencyInjection
             options.Configuration = redisConnection;
             options.InstanceName = "AstraVentura_"; // Prefijo para que no se mezclen claves de Redis entre Apps
         });
+
+        // Configuración de Proveedor de Correos
+        services.AddSingleton<
+            IEmailSender,
+            AstraVenturaAuth.Adapters.Drivens.Notifications.SendGridEmailSender
+        >();
 
         return services;
     }
