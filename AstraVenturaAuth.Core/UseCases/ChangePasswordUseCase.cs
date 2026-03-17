@@ -54,7 +54,7 @@ public sealed class ChangePasswordUseCase(
         var hashedNewPassword = _passwordHasher.Hash(dto.NewPassword);
         user.UpdatePassword(new PasswordHash(hashedNewPassword));
 
-        await _userRepository.SaveAsync(user, ct);
+        await _userRepository.UpdateAsync(user, ct);
         await _tokenGenerator.InvalidateAllRefreshTokensForUserAsync(user.Id.ToString(), ct);
 
         return Result<bool>.Success(true);

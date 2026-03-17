@@ -55,7 +55,7 @@ public class ResetPasswordUseCase : IResetPasswordUseCase
         );
 
         // Guardamos cambios
-        await _userRepository.SaveAsync(user, ct);
+        await _userRepository.UpdateAsync(user, ct);
 
         // Invalidamos el token (single-use)
         await _cache.RemoveAsync(tokenKey, ct);

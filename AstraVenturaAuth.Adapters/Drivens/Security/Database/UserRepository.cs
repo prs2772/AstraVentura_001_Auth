@@ -3,6 +3,7 @@ using AstraVenturaAuth.Core.Common;
 using AstraVenturaAuth.Core.Domain;
 using AstraVenturaAuth.Core.Domain.ValueObjects;
 using AstraVenturaAuth.Core.Ports.Drivens;
+using AstraVenturaAuth.Core.Common.Errors;
 using Microsoft.EntityFrameworkCore;
 
 namespace AstraVenturaAuth.Adapters.Drivens.Database;
@@ -52,6 +53,28 @@ public sealed class UserRepository : IUserRepository
         };
 
         await _db.Users.AddAsync(entity, ct);
+        await _db.SaveChangesAsync(ct);
+
+        return Result<User>.Success(user);
+    }
+
+    public async Task<Result<User>> UpdateAsync(User user, CancellationToken ct = default)
+    {
+        var entity = await _db.Users.FirstOrDefaultAsync(u => u.Id == user.Id.Value, ct);
+
+        if (entity is null)
+        {
+            return Result<User>.Failure(new ErrorResult("UserNotFound", "User not found for update."));
+        }
+
+        entity.Email = user.EmailAddress.Value;
+        entity.FirstName = user.Name.FirstName;
+        entity.MiddleName = user.Name.MiddleName;
+        entity.LastName = user.Name.LastName;
+        entity.SecondLastName = user.Name.SecondLastName;
+        entity.PasswordHash = user.PasswordHash.Value;
+        // entity.UpdatedAt = DateTime.UtcNow; // Avoid migration for now
+
         await _db.SaveChangesAsync(ct);
 
         return Result<User>.Success(user);

@@ -10,4 +10,5 @@ public interface IUserRepository
     Task<User?> FindByIdAsync(UserId id, CancellationToken ct = default);
     Task<bool> ExistsAsync(Email email, CancellationToken ct = default);
     Task<Result<User>> SaveAsync(User user, CancellationToken ct = default);
+    Task<Result<User>> UpdateAsync(User user, CancellationToken ct = default);
 }

@@ -73,7 +73,7 @@ public class ChangePasswordUseCaseTests
         Assert.Equal("hashed-new-password-123456", user.PasswordHash.Value);
 
         // Verify it was correctly saved to repository
-        _userRepoMock.Verify(r => r.SaveAsync(user, ct), Times.Once);
+        _userRepoMock.Verify(r => r.UpdateAsync(user, ct), Times.Once);
 
         // Verify tokens were invalidated
         _tokenGeneratorMock.Verify(
@@ -119,7 +119,7 @@ public class ChangePasswordUseCaseTests
         Assert.Equal(AuthErrors.InvalidCredentials.Code, result.Error.Code);
 
         // Verify no updates or token invalidations occurred
-        _userRepoMock.Verify(r => r.SaveAsync(It.IsAny<User>(), ct), Times.Never);
+        _userRepoMock.Verify(r => r.UpdateAsync(It.IsAny<User>(), ct), Times.Never);
         _tokenGeneratorMock.Verify(
             t => t.InvalidateAllRefreshTokensForUserAsync(It.IsAny<string>(), ct),
             Times.Never

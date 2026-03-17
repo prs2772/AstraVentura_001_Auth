@@ -69,7 +69,7 @@ public class ResetPasswordUseCaseTests
         Assert.Equal("new-hash-01234567890123456789", user.PasswordHash.Value);
 
         // Verify it was correctly saved to repository
-        _userRepoMock.Verify(r => r.SaveAsync(It.IsAny<User>(), ct), Times.Once);
+        _userRepoMock.Verify(r => r.UpdateAsync(It.IsAny<User>(), ct), Times.Once);
 
         // Verify token was deleted from cache preventing reuse
         _cacheMock.Verify(c => c.RemoveAsync($"pwd-reset:{token}", ct), Times.Once);
@@ -94,7 +94,7 @@ public class ResetPasswordUseCaseTests
         Assert.Equal("InvalidToken", result.Error.Code);
 
         // Validation: Should not update or save anything
-        _userRepoMock.Verify(r => r.SaveAsync(It.IsAny<User>(), ct), Times.Never);
+        _userRepoMock.Verify(r => r.UpdateAsync(It.IsAny<User>(), ct), Times.Never);
         _cacheMock.Verify(c => c.RemoveAsync(It.IsAny<string>(), ct), Times.Never);
     }
 }
